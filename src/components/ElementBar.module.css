@@ -1,0 +1,7 @@
+.bar {
+  flex: 1;
+  flex-direction: column-reverse;
+  min-width: 1px;
+  background-color: blue;
+  margin: 1px;
+}

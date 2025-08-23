@@ -1,0 +1,32 @@
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+.label {
+  min-width: fit-content;
+}
+
+.input {
+  width: 100px;
+  padding: 5px;
+  font-size: 16px;
+  border: 1px solid #333;
+  border-radius: 5px;
+}
+
+.generateButton {
+  width: 40%;
+  min-width: fit-content;
+  background-color: #61dafb;
+  margin-left: 0;
+}
+
+.startButton {
+  width: 60%;
+  min-width: fit-content;
+  background-color: coral;
+  margin-right: 0;
+}
