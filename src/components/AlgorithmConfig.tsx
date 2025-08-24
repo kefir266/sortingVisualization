@@ -1,17 +1,30 @@
-import type { JSX } from "react";
+import { type JSX, useState, useEffect } from "react";
 import { useLocalstorageState } from "../hooks/useLocalstorageState";
 import { algorithms } from "../constants/algorithms";
 import styles from "./AlgorithmConfig.module.css";
 
+enum Status {
+  Started = "Started",
+  Paused = "Paused",
+  Stopped = "Stopped",
+}
+
 export default function AlgorithmConfig({
+  finished,
   onGenerateArray,
   onStartSorting,
+  onPauseSorting,
+  onResumeSorting,
   className,
 }: {
-  onGenerateArray: (arg0: number) => void;
-  onStartSorting: (arg0: number) => void;
+  finished: boolean;
+  onGenerateArray: (numberOfElements: number) => void;
+  onStartSorting: (delay: number) => void;
+  onPauseSorting: () => void;
+  onResumeSorting: (delay: number) => void;
   className?: string;
 }): JSX.Element {
+  const [status, setStatus] = useState(Status.Stopped);
   const [algorithm, setAlgorithm] = useLocalstorageState(
     "algorithm",
     algorithms.quickSort,
@@ -22,8 +35,45 @@ export default function AlgorithmConfig({
   );
   const [delay, setDelay] = useLocalstorageState("delay", 1);
 
+  useEffect(() => {
+    if (finished) {
+      setStatus(Status.Stopped);
+    }
+  }, [finished]);
+
   const handleSubmit = () => {
     onGenerateArray(numberOfElements);
+  };
+
+  const handleStartPauseSorting = (delay: number) => {
+    switch (status) {
+      // Start
+      case Status.Stopped: {
+        onStartSorting(delay);
+        setStatus(Status.Started);
+        break;
+      }
+
+      // Pause
+      case Status.Started: {
+        onPauseSorting();
+        setStatus(Status.Paused);
+        break;
+      }
+
+      // Resume
+      case Status.Paused: {
+        onResumeSorting(delay);
+        setStatus(Status.Started);
+        break;
+      }
+
+      default: {
+        onPauseSorting();
+        setStatus(Status.Stopped);
+        break;
+      }
+    }
   };
 
   return (
@@ -63,16 +113,23 @@ export default function AlgorithmConfig({
         </div>
         <div className={styles.row}>
           <button
-            className="ml-0 w-1/2 min-w-fit bg-cyan-500"
+            className="ml-0 w-1/2 min-w-fit bg-cyan-500 disabled:cursor-not-allowed disabled:bg-cyan-200"
             onClick={handleSubmit}
+            disabled={status !== Status.Stopped}
           >
             Generate
           </button>
           <button
             className="mr-0 w-1/2 min-w-fit bg-amber-500"
-            onClick={() => onStartSorting(delay)}
+            onClick={() => handleStartPauseSorting(delay)}
           >
-            Start
+            {status === Status.Stopped
+              ? "Start"
+              : status === Status.Started
+                ? "Pause"
+                : status === Status.Paused
+                  ? "Resume"
+                  : "Stop"}
           </button>
         </div>
       </div>
