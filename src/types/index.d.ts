@@ -1,0 +1,1 @@
+export type TypeOfArrayElements = { value: number; key: number };

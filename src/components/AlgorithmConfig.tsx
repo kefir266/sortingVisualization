@@ -2,6 +2,7 @@ import { type JSX, useState, useEffect } from "react";
 import { useLocalstorageState } from "../hooks/useLocalstorageState";
 import { algorithms } from "../constants/algorithms";
 import styles from "./AlgorithmConfig.module.css";
+import { useConfig } from "../hooks/useConfig.ts";
 
 enum Status {
   Started = "Started",
@@ -25,14 +26,14 @@ export default function AlgorithmConfig({
   className?: string;
 }): JSX.Element {
   const [status, setStatus] = useState(Status.Stopped);
-  const [algorithm, setAlgorithm] = useLocalstorageState(
-    "algorithm",
-    algorithms.quickSort,
-  );
+  const { algorithm, setAlgorithm } = useConfig();
+
+  // TODO move it to configContext
   const [numberOfElements, setNumberOfElements] = useLocalstorageState(
     "numberOfElements",
     10,
   );
+  // TODO move it to configContext
   const [delay, setDelay] = useLocalstorageState("delay", 1);
 
   useEffect(() => {
@@ -42,7 +43,7 @@ export default function AlgorithmConfig({
   }, [finished]);
 
   const handleSubmit = () => {
-    onGenerateArray(numberOfElements);
+    onGenerateArray(+numberOfElements);
   };
 
   const handleStartPauseSorting = (delay: number) => {

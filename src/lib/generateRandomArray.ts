@@ -1,4 +1,4 @@
-export const generateRandomArray = (length, min = 0, max = 100) => {
+export const generateRandomArray = (length: number, min = 0, max = 100) => {
   if (length <= 0) {
     return [];
   }

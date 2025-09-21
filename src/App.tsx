@@ -1,31 +1,43 @@
-import { useState } from "react";
-import QuickSort from "@kefir266/algorithms/sort/QuickSort";
+import { useEffect, useState } from "react";
 import "./App.css";
 import AlgorithmConfig from "./components/AlgorithmConfig";
-import { generateRandomArray, wait } from "./lib/index";
+import { generateRandomArray, wait } from "./lib";
 import ArrayGraph from "./components/ArrayGraph";
+import createSortArray, { type SortArray } from "./lib/sortFabric.ts";
+import { useConfig } from "./hooks/useConfig.ts";
+import type {TypeOfArrayElements} from "./types";
 
 const MAX_ARRAY_VALUE = 1000;
-let quickSort = new QuickSort([]);
+
+let sortArray: SortArray<TypeOfArrayElements>;
 
 function App() {
-  const [arr, setArr] = useState(quickSort);
+  const { algorithm } = useConfig();
+  const [arr, setArr] = useState<Array<TypeOfArrayElements>>(
+    createSortArray(algorithm, []),
+  );
   const [finished, setFinished] = useState(false);
+
+  useEffect(() => {
+    sortArray = createSortArray(algorithm, arr);
+    setArr(sortArray);
+  }, [algorithm]);
+
   let delay = 1;
 
   const handleGenerateArray = (numberElements: number) => {
-    const newArray: [] = generateRandomArray(
+    const newArray: TypeOfArrayElements[] = generateRandomArray(
       numberElements,
       0,
       MAX_ARRAY_VALUE,
     );
-    quickSort = new QuickSort(newArray);
-    setArr(quickSort);
-    quickSort.onSwap(async function () {
-      setArr([...quickSort]);
+    sortArray = createSortArray(algorithm, newArray);
+    setArr(sortArray);
+    sortArray.onSwap(async function () {
+      setArr([...sortArray]);
       await wait(delay); // Simulate a delay for visualization
     });
-    quickSort.onFinished(() => {
+    sortArray.onFinished(() => {
       setFinished(true);
     });
   };
@@ -33,19 +45,17 @@ function App() {
   const handleStartSorting = (d: number) => {
     delay = d;
     setFinished(false);
-    if (arr instanceof QuickSort) {
-      arr.sort((a, b) => a.value - b.value);
-    }
+    sortArray.sort((a, b) => a.value - b.value);
   };
 
   const handlePauseSorting = () => {
-    quickSort.pause();
-  }
+    sortArray.pause();
+  };
 
   const handleResumerSorting = (d: number) => {
     delay = d;
-    quickSort.resume();
-  }
+    sortArray.resume();
+  };
 
   return (
     <div className="App h-full">
