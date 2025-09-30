@@ -5,7 +5,8 @@ import { generateRandomArray, wait } from "./lib";
 import ArrayGraph from "./components/ArrayGraph";
 import createSortArray, { type SortArray } from "./lib/sortFabric.ts";
 import { useConfig } from "./hooks/useConfig.ts";
-import type {TypeOfArrayElements} from "./types";
+import type { TypeOfArrayElements } from "./types";
+import Popup from "./components/Popup.tsx";
 
 const MAX_ARRAY_VALUE = 1000;
 
@@ -17,6 +18,8 @@ function App() {
     createSortArray(algorithm, []),
   );
   const [finished, setFinished] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [started, setStarted] = useState(new Date());
 
   useEffect(() => {
     sortArray = createSortArray(algorithm, arr);
@@ -39,12 +42,14 @@ function App() {
     });
     sortArray.onFinished(() => {
       setFinished(true);
+      setIsPopupOpen(true);
     });
   };
 
   const handleStartSorting = (d: number) => {
     delay = d;
     setFinished(false);
+    setStarted(new Date());
     sortArray.sort((a, b) => a.value - b.value);
   };
 
@@ -68,6 +73,13 @@ function App() {
         onResumeSorting={handleResumerSorting}
       />
       <ArrayGraph className="graph h-3/5" array={arr} />
+      <Popup
+        title="Finished"
+        isOpen={isPopupOpen}
+        closePopup={() => setIsPopupOpen(false)}
+      >
+        {new Date().getTime() - started.getTime()} ms
+      </Popup>
     </div>
   );
 }
